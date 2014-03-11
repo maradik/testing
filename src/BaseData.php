@@ -17,5 +17,5 @@
         public function __construct($id = 0) 
         {
             $this->id = (int) $id;
-        }
+        }                
     }

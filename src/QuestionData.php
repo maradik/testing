@@ -56,5 +56,46 @@
         public function isMain()
         {
             return empty($this->parentId);
-        }                            
+        }          
+        
+        /**
+         * Возвращает экземпляр класса QuestionData, проинициализированный данными $json
+         * 
+         * @param array $json
+         * @return QuestionData         
+         */
+        public static function createFromJson($json) 
+        {
+            $question = new QuestionData(
+                empty($json['id'])          ? 0 : (int) $json['id'],
+                empty($json['title'])       ? "" : (string) $json['title'],
+                empty($json['description']) ? "" : (string) $json['description'],
+                empty($json['categoryId'])  ? 0 : (int) $json['categoryId'],
+                empty($json['parentId'])    ? 0 : (int) $json['parentId'],
+                empty($json['order'])       ? 0 : (int) $json['order'],
+                empty($json['createDate'])  ? 0 : (int) $json['createDate'],  
+                empty($json['userId'])      ? 0 : (int) $json['userId']
+            );
+                                  
+            return $question;
+        }       
+        
+        /**
+         * Возвращает объект в формате JSON
+         * 
+         * @return mixed         
+         */        
+        public function jsonSerialize()
+        {
+            return array(
+                'id'            => $this->id,                
+                'title'         => $this->title,
+                'description'   => $this->description,   
+                'categoryId'    => $this->categoryId,
+                'parentId'      => $this->parentId,                
+                'order'         => $this->order,
+                'createDate'    => $this->createDate,   
+                'userId'        => $this->userId                                                     
+            );
+        }        
     }    

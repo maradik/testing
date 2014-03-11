@@ -4,7 +4,7 @@
     /**
      * Класс-контейнер для хранения вопроса или ответа
      */
-    abstract class QuestionAnswerData extends BaseData
+    abstract class QuestionAnswerData extends BaseData //implements JsonSerializable
     {
         /**
          * @var string $title Заголовок       
@@ -39,5 +39,20 @@
             $this->description  = $description; 
             $this->order        = (int) $order;
             $this->createDate   = (int) $createDate;
-        }                         
+        }                  
+        
+        /**
+         * Возвращает экземпляр класса QuestionAnswerData, проинициализированный данными $json
+         * 
+         * @param array $json
+         * @return QuestionAnswerData         
+         */
+        abstract public static function createFromJson($json);
+        
+        /**
+         * Возвращает объект QuestionAnswerData в формате JSON
+         * 
+         * @return mixed         
+         */        
+        abstract public function jsonSerialize();
     }

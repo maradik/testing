@@ -104,7 +104,7 @@
                 throw new \Exception(ERROR_TEXT_DB, 0, $err);              
             }                        
             
-            return $res !== false ? $this->rowToObject($row) : null;     
+            return $res !== false && $row !== false ? $this->rowToObject($row) : null;     
         }        
         
         /**
