@@ -44,7 +44,7 @@
          */
         protected function tableFullName()
         {
-            return empty($this->tablePrefix) ? $this->userTable : "{$this->tablePrefix}_{$this->tableName}";
+            return empty($this->tablePrefix) ? $this->tableName : "{$this->tablePrefix}_{$this->tableName}";
         }                  
         
         /**
