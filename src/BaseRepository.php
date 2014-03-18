@@ -50,11 +50,13 @@
         /**
          * Получить набор Сущностей из БД
          * 
-         * @param array Ассоциативный массив для наложения фильтра. {$key => $value} как {field => filter}         
-         * @return array Массив сущностей BaseData
+         * @param array $filter Ассоциативный массив для наложения фильтра. {$key => $value} как {field => filter}
+         * @param int $row_count Количество строк для выборки                
+         * @param int $row_offset Смещение первой выбираемой позиции           
+         * @return BaseData[] Массив сущностей BaseData
          */                
-        protected function get(array $filter) 
-        {
+        protected function get(array $filter, $row_count = 100, $row_offset = 0) 
+        {            
             $ret = array();
             
             $sql_where = "";                                                
@@ -65,7 +67,7 @@
                                                                            
             try {
                 $q = $this->db->prepare(
-                    "select * from `{$this->tableFullName()}`{$sql_where}"
+                    "select * from `{$this->tableFullName()}`{$sql_where} limit {$row_offset}, {$row_count}"
                 );
                 $res = $q->execute($filter);
                 if ($res) {                 
@@ -105,6 +107,23 @@
             }                        
             
             return $res !== false && $row !== false ? $this->rowToObject($row) : null;     
+        }        
+        
+        /**
+         * Получить список сущностей из БД
+         * 
+         * @param array $filter Ассоциативный массив для наложения фильтра.
+         * @param int $row_count Количество строк для выборки                
+         * @param int $row_offset Смещение первой выбираемой позиции              
+         * @return BaseData[] Массив сущностей
+         */                
+        public function getCollection(array $filter = null, $row_count = 100, $row_offset = 0) 
+        {                                    
+            return $this->get(
+                array(), 
+                $row_offset, 
+                $row_count
+            );     
         }        
         
         /**
