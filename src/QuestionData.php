@@ -9,12 +9,7 @@
         /**
          * @var int $parentId         
          */        
-        public $parentId;
-        
-        /**
-         * @var int $userId
-         */
-        public $userId;           
+        public $parentId;                
 
         /**
          * @var int $categoryId
@@ -41,11 +36,10 @@
             $createDate     = 0,
             $userId         = 0
         ) {
-            parent::__construct($id, $title, $description, $order, $createDate);           
+            parent::__construct($id, $title, $description, $order, $createDate, $userId);           
 
             $this->categoryId   = (int) $categoryId;
-            $this->parentId     = (int) $parentId;
-            $this->userId       = (int) $userId;
+            $this->parentId     = (int) $parentId;            
         }           
         
         /**

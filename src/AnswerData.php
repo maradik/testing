@@ -24,9 +24,10 @@
             $description    = "",             
             $questionId     = 0, 
             $order          = 0,            
-            $createDate     = 0
+            $createDate     = 0,
+            $userId         = 0
         ) {
-            parent::__construct($id, $title, $description, $order, $createDate);            
+            parent::__construct($id, $title, $description, $order, $createDate, $userId);            
 
             $this->questionId = (int) $questionId;
         }    
@@ -45,7 +46,8 @@
                 empty($json['description']) ? "" : (string) $json['description'],
                 empty($json['questionId'])  ? 0 : (int) $json['questionId'],
                 empty($json['order'])       ? 0 : (int) $json['order'],
-                empty($json['createDate'])  ? 0 : (int) $json['createDate']
+                empty($json['createDate'])  ? 0 : (int) $json['createDate'],
+                empty($json['userId'])      ? 0 : (int) $json['userId']
             );                                                             
                                   
             return $answer;
@@ -64,7 +66,8 @@
                 'description'   => $this->description,   
                 'questionId'    => $this->questionId,
                 'order'         => $this->order,                
-                'createDate'    => $this->createDate                                                     
+                'createDate'    => $this->createDate,
+                'userId'        => $this->userId                                                     
             );            
         }
     }

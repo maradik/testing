@@ -41,7 +41,8 @@
                 $row['description'],
                 $row['questionId'],
                 $row['order'],
-                $row['createDate']                                
+                $row['createDate'],
+                $row['userId']                                                
             );
             
             return $answerData;
@@ -63,6 +64,7 @@
             $row['questionId']  = $answer->questionId;
             $row['order']       = $answer->order;
             $row['createDate']  = $answer->createDate;
+            $row['userId']      = $answer->userId;
             
             return $row;
         }        
@@ -82,6 +84,7 @@
                           `questionId` int(10) unsigned NOT NULL,
                           `createDate` int(10) unsigned NOT NULL,
                           `order` int(11) NOT NULL,
+                          `userId` int(10) unsigned NOT NULL,
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_questionId` (`questionId`) 
                         ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        
