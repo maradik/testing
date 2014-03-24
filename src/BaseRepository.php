@@ -117,12 +117,12 @@
          * @param int $row_offset Смещение первой выбираемой позиции              
          * @return BaseData[] Массив сущностей
          */                
-        public function getCollection(array $filter = null, $row_count = 100, $row_offset = 0) 
+        public function getCollection(array $filter = array(), $row_count = 100, $row_offset = 0) 
         {                                    
             return $this->get(
                 array(), 
-                $row_offset, 
-                $row_count
+                $row_count,
+                $row_offset                 
             );     
         }        
         
