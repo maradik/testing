@@ -57,7 +57,7 @@
          * @param RelData $rel
          * @return array
          */
-        protected function objectToRow($rel)
+        protected function objectToRow(BaseData $rel)
         {            
             $row = array();
             $row['id']       = $rel->id;
