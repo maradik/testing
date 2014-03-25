@@ -120,11 +120,26 @@
         public function getCollection(array $filter = array(), $row_count = 100, $row_offset = 0) 
         {                                    
             return $this->get(
-                array(), 
+                $filter, //TODO преобразование фильтра из полей сущностей в поля таблицы
                 $row_count,
                 $row_offset                 
             );     
-        }        
+        }      
+        
+        /**
+         * Получить сущность из БД
+         * 
+         * @param array $filter Ассоциативный массив для наложения фильтра.        
+         * @return BaseData Сущность
+         */                
+        public function getOne(array $filter = array(), $row_count = 100, $row_offset = 0) 
+        {                                    
+            return $this->get(
+                $filter, //TODO преобразование фильтра из полей сущностей в поля таблицы
+                1,
+                0                 
+            );     
+        }           
         
         /**
          * Вставить сущность в БД
