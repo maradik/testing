@@ -134,11 +134,11 @@
          */                
         public function getOne(array $filter = array(), $row_count = 100, $row_offset = 0) 
         {                                    
-            return $this->get(
+            return current($this->get(
                 $filter, //TODO преобразование фильтра из полей сущностей в поля таблицы
                 1,
                 0                 
-            );     
+            ));     
         }           
         
         /**
