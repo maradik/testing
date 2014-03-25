@@ -87,7 +87,7 @@
                           `userId` int(10) unsigned NOT NULL,
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_questionId` (`questionId`) 
-                        ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        
                 $ret = $this->db->query($sql) !== false;            
             } catch (\Exception $err) {
                 throw new \Exception(ERROR_TEXT_DB, 0, $err);              
