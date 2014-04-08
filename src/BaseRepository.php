@@ -233,6 +233,21 @@
             return $ret;            
         }
         
+        public function transactionBegin()
+        {
+            return $this->db->beginTransaction();
+        }
+        
+        public function transactionCommit()
+        {
+            return $this->db->commit();
+        }
+        
+        public function transactionRollBack()
+        {
+            return $this->db->rollBack();
+        }
+        
         /**
          * Преобразование ассоциативного массива (строка таблицы) в объект сущности
          * 
