@@ -194,7 +194,7 @@
                 $tableField = $this->repository->getTableField($filter->getField());
                 $paramName = "{$this->getAlias()}_{$tableField}{$key}";
                 $sql .= ($sql ? ' AND ' : '') 
-                    . "{$tableField} {$filter->getRelationType()} :{$paramName}";
+                    . "{$this->getAlias()}.{$tableField} {$filter->getRelationType()} :{$paramName}";
                 $params[$paramName] = $filter->getValue();
             }
             
@@ -226,7 +226,7 @@
                         . $sql;
                 }
                 list($whereSqlCur, $whereParamsCur) = $query->buildSqlFilter();
-                $whereSql = $whereSqlCur + ($whereSql ? ' AND ' : '') + $whereSql;
+                $whereSql = $whereSqlCur . ($whereSql ? ' AND ' : '') . $whereSql;
                 $whereParams = array_merge($whereParams, $whereParamsCur);
                 unset($whereSqlCur);
                 unset($whereParamsCur);
