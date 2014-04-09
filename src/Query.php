@@ -222,6 +222,7 @@
                 $tableFields = array_values($query->getRepository()->getTableFields());    
                 array_walk($tableFields, function(&$field) use ($query) {
                     $field = "{$query->getAlias()}.{$field}";
+                    $field .= " AS {$field}";
                 });
                 $selectionList = array_merge($tableFields, $selectionList);
                 unset($tableFields);
