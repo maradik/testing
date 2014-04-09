@@ -22,6 +22,18 @@
          * @var string $tableName
          */         
         protected $tableName;          
+        
+        /**
+         * @var array Соответствие полей сущности (ключ) - полям таблицы (значение)
+         */
+         
+        private $tableFields;
+        
+        /**
+         * @var array Соответствие полей таблицы (ключ) - полям сущности (значение)
+         */
+         
+        private $entityFields;        
                 
         /**
          * @param \PDO $pdo Объект для взаимодействия с БД
@@ -37,12 +49,15 @@
             $this->db = $pdo;
             $this->tableName = $tableName;
             $this->tablePrefix = $tablePrefix;
+            
+            $this->tableFields = $this->tableFields();
+            $this->entityFields = array_flip($this->tableFields);
         }     
         
         /**
          * return string Полное имя таблицы с префиксом
          */
-        protected function tableFullName()
+        public function tableFullName()
         {
             return empty($this->tablePrefix) ? $this->tableName : "{$this->tablePrefix}_{$this->tableName}";
         }                  
@@ -132,7 +147,7 @@
          * @param array $filter Ассоциативный массив для наложения фильтра.        
          * @return BaseData Сущность
          */                
-        public function getOne(array $filter = array(), $row_count = 100, $row_offset = 0) 
+        public function getOne(array $filter = array()) 
         {                                    
             return current($this->get(
                 $filter, //TODO преобразование фильтра из полей сущностей в поля таблицы
@@ -233,6 +248,35 @@
             return $ret;            
         }
         
+        /**
+         * Получить название поля сущности по названию поля таблицы 
+         * 
+         * @return string Название поля сущности
+         */
+        public function getEntityField($tableField)
+        {
+            if (!empty($this->entityFields[$tableField])) {
+                return $this->entityFields[$tableField];
+            }
+                        
+            return "";              
+        }
+        
+        /**
+         * Получить название поля таблицы по названию поля сущности 
+         * 
+         * @return string Название поля таблицы
+         */        
+        public function getTableField($entityField)
+        {
+            if (!empty($this->tableFields[$entityField])) {
+                return $this->tableFields[$entityField];
+            }
+                        
+            return "";                        
+        }
+                
+        
         public function transactionBegin()
         {
             return $this->db->beginTransaction();
@@ -249,6 +293,23 @@
         }
         
         /**
+         * Преобразование объекта сущности в ассоциативный массив (строка таблицы)
+         * 
+         * @param BaseData $object  
+         * @return array
+         */
+        protected function objectToRow(BaseData $entity)
+        {            
+            $row = array();
+            
+            foreach ($this->tableFields as $entityField => $tableField) {
+                $row[$tableFields] = $entity->$entityField;
+            }
+            
+            return $row;
+        }         
+        
+        /**
          * Преобразование ассоциативного массива (строка таблицы) в объект сущности
          * 
          * @param array $row Ассоциативный массив, где каждая пара (ключ; значение) = (название поля; значение поля)
@@ -257,18 +318,17 @@
         abstract protected function rowToObject(array $row);
 
         /**
-         * Преобразование объекта сущности в ассоциативный массив (строка таблицы)
-         * 
-         * @param BaseData $object  
-         * @return array
-         */
-        abstract protected function objectToRow(BaseData $object);        
-
-        /**
          * Создание необходимых таблиц в БД и первичная настройка
          *          
          * @return boolean true в случае успеха, иначе false
          */
         abstract public function install();  
+        
+        /**
+         * Используется для задания правила отображения поля сущности в поле таблицы. 
+         *
+         * @return array Массив["поле_сущности"] = "поле_таблицы"
+         */
+        abstract protected function tableFields();
     }
 

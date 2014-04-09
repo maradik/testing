@@ -53,10 +53,12 @@
             return $relData;
         }
         
+        //TODO Удалить метод, определен в родителе
         /**
          * @param RelData $rel
          * @return array
          */
+        /*
         protected function objectToRow(BaseData $rel)
         {            
             $row = array();
@@ -65,7 +67,22 @@
             $row['childId']  = $rel->childId;
             
             return $row;
-        }        
+        }   
+        */     
+        
+       /**
+         * Используется для задания правила отображения поля сущности в поле таблицы. 
+         *
+         * @return array Массив["поле_сущности"] = "поле_таблицы"
+         */
+        protected function tableFields()
+        {
+            return array(
+                'id'          => 'id',
+                'parentId'    => 'parentId',
+                'childId'     => 'childId'
+            );            
+        }          
 
         /**
          * Создание необходимых таблиц в БД и первичная настройка

@@ -47,11 +47,13 @@
             
             return $answerData;
         }
-        
+
+        //TODO Удалить метод, определен в родителе        
         /**
          * @param BaseData $answer
          * @return array
          */
+        /*
         protected function objectToRow(BaseData $answer)
         {
             if (!($answer instanceof AnswerData))
@@ -67,6 +69,25 @@
             $row['userId']      = $answer->userId;
             
             return $row;
+        }        
+        */
+        
+        /**
+         * Используется для задания правила отображения поля сущности в поле таблицы. 
+         *
+         * @return array Массив["поле_сущности"] = "поле_таблицы"
+         */
+        protected function tableFields()
+        {
+            return array(
+                'id'          => 'id',
+                'title'       => 'title',
+                'description' => 'description',
+                'questionId'  => 'questionId',
+                'order'       => 'order',
+                'createDate'  => 'createDate',
+                'userId'      => 'userId'
+            );            
         }        
         
         /**

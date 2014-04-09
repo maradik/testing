@@ -46,10 +46,12 @@
             return $categoryData;
         }
         
+        //TODO Удалить метод, определен в родителе        
         /**
          * @param BaseData $category
          * @return array
          */
+        /*
         protected function objectToRow(BaseData $category)
         {
             if (!($category instanceof CategoryData))
@@ -64,6 +66,23 @@
             
             return $row;
         }        
+        */
+        
+        /**
+         * Используется для задания правила отображения поля сущности в поле таблицы. 
+         *
+         * @return array Массив["поле_сущности"] = "поле_таблицы"
+         */
+        protected function tableFields()
+        {
+            return array(
+                'id'          => 'id',
+                'title'       => 'title',
+                'description' => 'description',
+                'order'       => 'order',
+                'parentId'    => 'parentId'
+            );            
+        }            
         
         /**
          * Создание необходимых таблиц в БД и первичная настройка
