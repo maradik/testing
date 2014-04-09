@@ -221,7 +221,7 @@
                 //SHOW FULL FIELDS FROM table_name --для получения списка полей таблицы
                 $tableFields = $query->getRepository()->getTableFields();    
                 array_walk($tableFields, function(&$field) use ($query) {
-                    $field = $query->getAlias() . $field;
+                    $field = "{$query->getAlias()}.{$field}";
                 });
                 $selectionList = array_merge($tableFields, $selectionList);
                 unset($tableFields);
