@@ -58,6 +58,25 @@
         }
         
         /**
+         * @return string Способ присоединения источника данных в виде строки 
+         */
+        public function getJoinModeStr()
+        {
+            if ($this->getJoinLevel()) {
+                switch ($this->joinMode) {
+                    case Query::JOIN_INNER:
+                        return 'INNER';
+                    case Query::JOIN_LEFT_OUTER:
+                        return 'LEFT OUTER';
+                    case Query::JOIN_RIGHT_OUTER:
+                        return 'RIGHT OUTER';                                     
+                }
+            }
+            
+            return '';            
+        }
+        
+        /**
          * @return int Уровень вложенности источника данных
          */
         public function getJoinLevel()
@@ -187,6 +206,7 @@
          */
         public function buildSql()
         {
+            $sql = '';
             $whereSql = '';
             $whereParams = array();
             $selectionList = array();
@@ -196,17 +216,18 @@
                 $selectionList[] = $query->getAlias() . '.*';
                 if ($query->getJoinQuery()) {
                     $relation = $query->buildSqlRelation();
-                    $sql = "join {$query->getRepository()->tableFullName()} {$query->getAlias()} "
+                    $sql = $query->getJoinModeStr()
+                        . " JOIN {$query->getRepository()->tableFullName()} {$query->getAlias()} "
                         . ($relation ? "ON {$relation}" : "");
                     unset($relation);
                 } else {
-                    $sql = "select " . implode(', ', array_reverse($selectionList))
-                        . " from {$query->getRepository()->tableFullName()} {$query->getAlias()} "
+                    $sql = "SELECT " . implode(', ', array_reverse($selectionList))
+                        . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()} "
                         . $sql;
                 }
                 list($whereSqlCur, $whereParamsCur) = $query->buildSqlFilter();
                 $whereSql = $whereSqlCur + ($whereSql ? ' AND ' : '') + $whereSql;
-                $whereParams = array_merge($whereParams, $whereSqlCur);
+                $whereParams = array_merge($whereParams, $whereParamsCur);
                 unset($whereSqlCur);
                 unset($whereParamsCur);
             } while ($query = $query->getJoinQuery());
