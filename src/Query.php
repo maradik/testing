@@ -173,9 +173,11 @@
             if ($joinQuery = $this->getJoinQuery()) {
                 foreach ($this->getLinks() as $link) {
                     $ret .= ($ret ? ' AND ' : '')
-                        . "{$joinQuery->getAlias()}.{$joinQuery->repository->getTableField($link->getParentField())} "
-                        . "{$link->getRelationType} "
-                        . "{$this->getAlias()}.{$this->repository->getTableField($link->getChildField())}";
+                        . "{$joinQuery->getAlias()}."
+                        . "{$joinQuery->getRepository()->getTableField($link->getParentField())} "
+                        . "{$link->getRelationType()} "
+                        . "{$this->getAlias()}."
+                        . "{$this->getRepository()->getTableField($link->getChildField())}";
                 }
             }   
             
@@ -226,7 +228,7 @@
                         . $sql;
                 }
                 list($whereSqlCur, $whereParamsCur) = $query->buildSqlFilter();
-                $whereSql = $whereSqlCur . ($whereSql ? ' AND ' : '') . $whereSql;
+                $whereSql = $whereSqlCur . ($whereSqlCur && $whereSql ? ' AND ' : '') . $whereSql;
                 $whereParams = array_merge($whereParams, $whereParamsCur);
                 unset($whereSqlCur);
                 unset($whereParamsCur);
