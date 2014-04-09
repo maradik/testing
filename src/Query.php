@@ -219,7 +219,7 @@
             do {
                 //ВНИМАНИЕ! Если будет проблема гибкости со списком полей, используй дополнительный запрос
                 //SHOW FULL FIELDS FROM table_name --для получения списка полей таблицы
-                $tableFields = $query->getRepository()->getTableFields();    
+                $tableFields = array_values($query->getRepository()->getTableFields());    
                 array_walk($tableFields, function(&$field) use ($query) {
                     $field = "{$query->getAlias()}.{$field}";
                 });
