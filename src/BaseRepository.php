@@ -292,6 +292,11 @@
             return $this->db->rollBack();
         }
         
+        public function getTableFields()
+        {
+            return $this->tableFields;
+        }
+        
         /**
          * Преобразование объекта сущности в ассоциативный массив (строка таблицы)
          * 

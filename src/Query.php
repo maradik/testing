@@ -204,6 +204,8 @@
         }
         
         /**
+         * Формирует строку Sql-запроса (с учетом присоединенных источников данных) и массив параметров. 
+         *
          * @return array Строка Sql-запроса с параметрами
          */
         public function buildSql()
@@ -211,25 +213,34 @@
             $sql = '';
             $whereSql = '';
             $whereParams = array();
-            $selectionList = array();
+            $selectionList = array(); 
             
             $query = $this;
             do {
-                $selectionList[] = $query->getAlias() . '.*';
+                //ВНИМАНИЕ! Если будет проблема гибкости со списком полей, используй дополнительный запрос
+                //SHOW FULL FIELDS FROM table_name --для получения списка полей таблицы
+                $tableFields = $query->getRepository()->getTableFields();    
+                array_walk($tableFields, function(&$field) use ($query) {
+                    $field = $query->getAlias() . $field;
+                });
+                $selectionList = array_merge($tableFields, $selectionList);
+                unset($tableFields);
+                
                 if ($query->getJoinQuery()) {
                     $relation = $query->buildSqlRelation();
                     $sql = $query->getJoinModeStr()
                         . " JOIN {$query->getRepository()->tableFullName()} {$query->getAlias()} "
-                        . ($relation ? "ON {$relation}" : "");
+                        . ($relation ? "ON {$relation}" : "")
+                        . ($sql ? " {$sql}" : "");                        
                     unset($relation);
                 } else {
                     $sql = "SELECT " . implode(', ', array_reverse($selectionList))
-                        . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()} "
-                        . $sql;
+                        . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()}"
+                        . ($sql ? " {$sql}" : "");
                 }
                 list($whereSqlCur, $whereParamsCur) = $query->buildSqlFilter();
                 $whereSql = $whereSqlCur . ($whereSqlCur && $whereSql ? ' AND ' : '') . $whereSql;
-                $whereParams = array_merge($whereParams, $whereParamsCur);
+                $whereParams = array_merge($whereParamsCur, $whereParams);
                 unset($whereSqlCur);
                 unset($whereParamsCur);
             } while ($query = $query->getJoinQuery());
