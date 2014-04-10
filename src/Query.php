@@ -49,6 +49,11 @@
         protected $joinLevel = 0;
         
         /**
+         * @var boolean $hidden Скрыть сущность в результатах
+         */
+        protected $hidden = false;
+        
+        /**
          * @param BaseRepository $repository
          * @param Query $joinQuery
          * @param int $joinMode
@@ -83,6 +88,26 @@
             
             return '';            
         }
+        
+        /**
+         * Настройка отображения сущности в результатах
+         * 
+         * @param boolean $hidden Скрыть сущность в результатах
+         * @return Query
+         */
+        public function setHidden($hidden)
+        {
+            $this->hidden = $hidden;
+            return $this;
+        }
+        
+        /**
+         * @return boolean Скрывать ли сущность в результатах
+         */
+        public function getHidden()
+        {
+            return $this->hidden;
+        }        
         
         /**
          * @return int Уровень вложенности источника данных
@@ -305,13 +330,15 @@
             do {
                 //ВНИМАНИЕ! Если будет проблема гибкости со списком полей, используй дополнительный запрос
                 //SHOW FULL FIELDS FROM table_name --для получения списка полей таблицы
-                $tableFields = array_values($query->getRepository()->getTableFields());    
-                array_walk($tableFields, function(&$field) use ($query) {
-                    $field = "{$query->getAlias()}.{$field}";
-                    $field .= " AS '{$field}'";
-                });
-                $selectionList = array_merge($tableFields, $selectionList);
-                unset($tableFields);
+                if (!$query->getHidden()) {
+                    $tableFields = array_values($query->getRepository()->getTableFields());    
+                    array_walk($tableFields, function(&$field) use ($query) {
+                        $field = "{$query->getAlias()}.{$field}";
+                        $field .= " AS '{$field}'";
+                    });
+                    $selectionList = array_merge($tableFields, $selectionList);
+                    unset($tableFields);
+                }
                 
                 if ($query->getJoinQuery()) {
                     $relation = $query->buildSqlRelation();
@@ -321,7 +348,7 @@
                         . ($sql ? " {$sql}" : "");                        
                     unset($relation);
                 } else {
-                    $sql = "SELECT " . implode(', ', $selectionList)
+                    $sql = "SELECT " . (!empty($selectionList) ? implode(', ', $selectionList) : "'x'")
                         . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()}"
                         . ($sql ? " {$sql}" : "");
                 }
@@ -376,6 +403,11 @@
             if ($this->getJoinQuery()) {
                 $ret = $this->getJoinQuery()->rowToObjects($row);
             }
+            
+            if ($this->getHidden()) {
+                return $ret;
+            }
+            
             // определяем интересующие поля из всех кючей $row
             $fields = array_filter(array_keys($row), function($field) use ($fieldPrefix) {
                 return strpos($field, $fieldPrefix) === 0; 

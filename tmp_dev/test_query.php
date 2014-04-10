@@ -44,9 +44,11 @@
         ->addFilterField('categoryId', 0, '>=') 
         ->addFilterField('categoryId', 4, '<=') 
         ->addSortField('categoryId', Query::SORT_DESC)
+        ->setHidden(true)   
         ->join($cRepository, Query::JOIN_LEFT_OUTER)
         ->addLinkFields('categoryId', 'id')    
-        ->addSortField('order', Query::SORT_DESC);
+        ->addSortField('order', Query::SORT_DESC)
+        ->setHidden(true);        
         
     list($sql, $params) = $q2->buildSql();
     print $sql . "\n";      
