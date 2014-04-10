@@ -33,7 +33,7 @@
         /**
          * @return CategoryData
          */
-        protected function rowToObject(array $row)
+        public function rowToObject(array $row)
         {
             $categoryData = new CategoryData(
                 $row['id'],                

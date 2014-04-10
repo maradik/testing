@@ -55,7 +55,15 @@
         }     
         
         /**
-         * return string Полное имя таблицы с префиксом
+         * @return \PDO
+         */                
+        public function getDb()
+        {
+            return $this->db;
+        }           
+        
+        /**
+         * @return string Полное имя таблицы с префиксом
          */
         public function tableFullName()
         {
@@ -297,6 +305,11 @@
             return $this->tableFields;
         }
         
+        public function query()
+        {
+            return new Query($this);
+        }
+        
         /**
          * Преобразование объекта сущности в ассоциативный массив (строка таблицы)
          * 
@@ -320,7 +333,7 @@
          * @param array $row Ассоциативный массив, где каждая пара (ключ; значение) = (название поля; значение поля)
          * @return BaseData 
          */
-        abstract protected function rowToObject(array $row);
+        abstract public function rowToObject(array $row);
 
         /**
          * Создание необходимых таблиц в БД и первичная настройка

@@ -9,7 +9,10 @@
         const JOIN_INNER        = 0;
         const JOIN_LEFT_OUTER   = 1;
         const JOIN_RIGHT_OUTER  = 2;
-        
+         
+        const SORT_ASC          = 0;
+        const SORT_DESC         = 1; 
+                
         /**
          * @var Query $joinQuery;
          */
@@ -34,6 +37,11 @@
          * @var DataFilter[] $filters 
          */
         protected $filters = array();
+        
+        /**
+         * @var array Сортировка {Поле} => {Тип сортировки}
+         */
+        protected $sort = array();
         
         /**
          * @var int $joinLevel Уровень вложенности источника данных
@@ -113,6 +121,19 @@
         }
         
         /**
+         * Добавить связь по полям
+         * 
+         * @param string $parentField Поле вышестоящей сущности
+         * @param string $childField Поле сущности
+         * @param string $relationType Тип связи
+         * @return Query
+         */
+        public function addLinkFields($parentField, $childField, $relationType = '=')
+        {
+            return $this->addLink(new DataLink($parentField, $childField, $relationType));
+        }        
+        
+        /**
          * @return DataLink
          */
         public function getLinks()
@@ -142,6 +163,19 @@
         }
         
         /**
+         * Добавить фильтр по полю
+         * 
+         * @param string $field Поле
+         * @param string $value Значение для фильтр
+         * @param string $relationType Тип фильтра
+         * @return Query
+         */
+        public function addFilterField($field, $value, $relationType = '=')
+        {
+            return $this->addFilter(new DataFilter($field, $value, $relationType));
+        }        
+        
+        /**
          * @return DataFilter
          */
         public function getFilters()
@@ -157,6 +191,42 @@
             $this->filters = array();
             return $this;
         }        
+        
+        /**
+         * Добавить сортировку по полю
+         * 
+         * @param string $field Поле
+         * @param int $sortOrder Тип фильтра
+         * @return Query
+         */
+        public function addSortField($field, $sortOrder = Query::SORT_ASC)
+        {
+            $sortOrderStr = 'ASC';
+            
+            if ($sortOrder == Query::SORT_DESC) {
+                $sortOrderStr = 'DESC';   
+            }
+
+            $this->sort[$field] = $sortOrderStr;
+            return $this;
+        }        
+        
+        /**
+         * @return array
+         */
+        public function getSort()
+        {
+            return $this->sort;   
+        }        
+        
+        /**
+         * @return Query
+         */
+        public function clearSort()
+        {
+            $this->sort = array();
+            return $this;
+        }             
         
         public function getAlias()
         {
@@ -193,7 +263,7 @@
             $params = array();
             
             foreach ($this->getFilters() as $key => $filter) {
-                $tableField = $this->repository->getTableField($filter->getField());
+                $tableField = $this->getRepository()->getTableField($filter->getField());
                 $paramName = "{$this->getAlias()}_{$tableField}{$key}";
                 $sql .= ($sql ? ' AND ' : '') 
                     . "{$this->getAlias()}.{$tableField} {$filter->getRelationType()} :{$paramName}";
@@ -202,6 +272,21 @@
             
             return array($sql, $params);
         }
+        
+        /**
+         * @return string Часть Sql-выражения, отвечающая за сортировку
+         */
+        public function buildSqlSort()
+        {
+            $sql = '';
+
+            foreach ($this->getSort() as $field => $sortOrder) {
+                $sql .= ($sql ? ', ' : '')
+                    . "{$this->getAlias()}.{$this->getRepository()->getTableField($field)} {$sortOrder}";
+            }
+            
+            return $sql;
+        }        
         
         /**
          * Формирует строку Sql-запроса (с учетом присоединенных источников данных) и массив параметров. 
@@ -213,7 +298,8 @@
             $sql = '';
             $whereSql = '';
             $whereParams = array();
-            $selectionList = array(); 
+            $selectionList = array();             
+            $sortSql = '';
             
             $query = $this;
             do {
@@ -235,7 +321,7 @@
                         . ($sql ? " {$sql}" : "");                        
                     unset($relation);
                 } else {
-                    $sql = "SELECT " . implode(', ', array_reverse($selectionList))
+                    $sql = "SELECT " . implode(', ', $selectionList)
                         . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()}"
                         . ($sql ? " {$sql}" : "");
                 }
@@ -244,9 +330,13 @@
                 $whereParams = array_merge($whereParamsCur, $whereParams);
                 unset($whereSqlCur);
                 unset($whereParamsCur);
+                $sortSqlCur = $query->buildSqlSort();
+                $sortSql = $sortSqlCur . ($sortSqlCur && $sortSql ? ', ' : '') . $sortSql;
+                unset($sortSqlCur);
             } while ($query = $query->getJoinQuery());
             
             $sql .= ($whereSql ? " WHERE {$whereSql}" : '');
+            $sql .= ($sortSql ? " ORDER BY {$sortSql}" : '');
             
             return array($sql, $whereParams);            
         }        
@@ -271,31 +361,62 @@
         }      
         
         /**
+         * Преобразует ассоциативный массив в массив объектов BaseData
+         * 
+         * @param array Ассоциативный массив
+         * @return BaseData[]
+         */
+        public function rowToObjects($row)
+        {
+            //TODO Попытаться упростить процедуру выделения интересующих полей 
+            $fieldPrefix = "{$this->getAlias()}.";
+            $fieldPrefixLen = strlen($fieldPrefix);
+            $ret = array();
+            
+            if ($this->getJoinQuery()) {
+                $ret = $this->getJoinQuery()->rowToObjects($row);
+            }
+            // определяем интересующие поля из всех кючей $row
+            $fields = array_filter(array_keys($row), function($field) use ($fieldPrefix) {
+                return strpos($field, $fieldPrefix) === 0; 
+            });
+            // оставляем для рассмотрения только элементы $row с интересующими ключами
+            $subrow = array_intersect_key($row, array_flip($fields));
+            
+            // если все поля содержат NULL - добавляем к результату объект NULL
+            if (count(array_diff($subrow, array(0 => null))) == 0) {
+                $ret[] = null;
+            } else {
+                // удаляем из полей префикс из названия текущего источника данных (оставляем голые названия полей)
+                array_walk($fields, function(&$field)  use ($fieldPrefixLen) {
+                    $field = substr($field, $fieldPrefixLen); 
+                }); 
+                
+                $ret[] = $this->getRepository()->rowToObject(array_combine($fields, $subrow));                
+            }
+                
+            return $ret;
+        }
+        
+        /**
          * Получить массив строк сущностей из БД
          * 
          * @param int $row_count Количество строк для выборки                
          * @param int $row_offset Смещение первой выбираемой позиции           
          * @return BaseData[][] Массив строк сущностей BaseData
          */                
-        protected function get($row_count = 100, $row_offset = 0) 
+        public function get($row_count = 100, $row_offset = 0) 
         {            
             $ret = array();
+            list($sql, $params) = $this->buildSql();            
             
-            $sql_where = "";                                                
-            foreach ($filter as $key => $val) {
-                $sql_where .= (empty($sql_where) ? "" : " AND ") . "`{$key}` = :{$key}";                           
-            }        
-            $sql_where = (empty($sql_where) ? "" : " where ") . $sql_where;                        
-                                                                           
             try {
-                $q = $this->db->prepare(
-                    "select * from `{$this->tableFullName()}`{$sql_where} limit {$row_offset}, {$row_count}"
-                );
-                $res = $q->execute($filter);
+                $q = $this->getRepository()->getDb()->prepare($sql . " LIMIT {$row_offset}, {$row_count}");
+                $res = $q->execute($params);
                 if ($res) {                 
                     $rows = $q->fetchAll(\PDO::FETCH_ASSOC);
                     foreach ($rows as $row) {
-                        $ret[] = $this->rowToObject($row);
+                        $ret[] = $this->rowToObjects($row);
                     }
                     unset($rows);
                 } 

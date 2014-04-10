@@ -42,7 +42,7 @@
         /**
          * @return RelData
          */
-        protected function rowToObject(array $row)
+        public function rowToObject(array $row)
         {
             $relData = new RelData(
                 $row['id'],

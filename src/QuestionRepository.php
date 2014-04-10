@@ -33,7 +33,7 @@
         /**
          * @return QuestionData
          */
-        protected function rowToObject(array $row)
+        public function rowToObject(array $row)
         {
             $questionData = new QuestionData(
                 $row['id'],
