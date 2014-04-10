@@ -95,7 +95,7 @@
          * @param boolean $hidden Скрыть сущность в результатах
          * @return Query
          */
-        public function setHidden($hidden)
+        public function setHidden($hidden = true)
         {
             $this->hidden = $hidden;
             return $this;
