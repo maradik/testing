@@ -321,7 +321,7 @@
             $row = array();
             
             foreach ($this->tableFields as $entityField => $tableField) {
-                $row[$tableFields] = $entity->$entityField;
+                $row[$tableField] = $entity->$entityField;
             }
             
             return $row;
