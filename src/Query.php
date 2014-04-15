@@ -435,7 +435,7 @@
          * 
          * @param int $row_count Количество строк для выборки                
          * @param int $row_offset Смещение первой выбираемой позиции           
-         * @return BaseData[][] Массив строк сущностей BaseData
+         * @return BaseData[][] Массив строк сущностей BaseData (первый индекс - номер строки, второй - номер сущности по порядку)
          */                
         public function get($row_count = 100, $row_offset = 0) 
         {            
@@ -463,10 +463,22 @@
         /**
          * Получить строку сущностей из БД
          * 
-         * @return BaseData[] Сущность
+         * @return BaseData[] Набор сущностей (столбцы одной строки БД)
          */                
         public function getOne() 
         {                                    
             return current($this->get(1, 0));     
-        }                    
+        }   
+        
+        /**
+         * Получить из БД набор сущностей только одного типа
+         * 
+         * @param int $row_count Количество строк для выборки                
+         * @param int $row_offset Смещение первой выбираемой позиции  
+         * @return BaseData[] Набор сущностей (строки БД)
+         */        
+        public function getEntity($row_count = 100, $row_offset = 0)
+        {
+            return array_map('array_pop', $this->get($row_count, $row_offset));
+        }                 
     }
