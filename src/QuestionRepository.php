@@ -43,7 +43,8 @@
                 $row['parentId'],
                 $row['order'],
                 $row['createDate'],
-                $row['userId']
+                $row['userId'],
+                $row['active']
             );
             
             return $questionData;
@@ -89,7 +90,8 @@
                 'parentId'    => 'parentId',
                 'order'       => 'order',
                 'createDate'  => 'createDate',
-                'userId'      => 'userId'
+                'userId'      => 'userId',
+                'active'      => 'active'
             );            
         }                 
         
@@ -110,6 +112,7 @@
                           `userId` int(10) unsigned NOT NULL,
                           `categoryId` int(10) unsigned NOT NULL,
                           `order` int(11) NOT NULL,
+                          `active` BOOLEAN NOT NULL DEFAULT '0',
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_parentId` (`parentId`),
                           KEY `{$this->tableFullName()}_userId` (`userId`),

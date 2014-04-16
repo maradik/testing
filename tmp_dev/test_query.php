@@ -47,11 +47,10 @@
         ->setHidden()          
         ->join($cRepository, Query::JOIN_LEFT_OUTER)
         ->addLinkFields('categoryId', 'id')    
-        ->addSortField('order', Query::SORT_DESC)
-        ->setHidden();      
+        ->addSortField('order', Query::SORT_DESC);      
         
     list($sql, $params) = $q2->buildSql();
     print $sql . "\n";      
     
-    $res = $q2->getEntity();
+    $res = $q2->get();
     print_r($res);

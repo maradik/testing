@@ -15,6 +15,11 @@
          * @var int $categoryId
          */
         public $categoryId;         
+
+        /**
+         * @var boolean $active
+         */
+        public $active;         
         
         /**                  
          * @param int $id         
@@ -25,6 +30,7 @@
          * @param int $order
          * @param int $createDate
          * @param int $userId 
+         * @param boolean $active
          */
         public function __construct(
             $id             = 0,        
@@ -34,12 +40,14 @@
             $parentId       = 0,
             $order          = 0,            
             $createDate     = 0,
-            $userId         = 0
+            $userId         = 0,
+            $active         = false
         ) {
             parent::__construct($id, $title, $description, $order, $createDate, $userId);           
 
             $this->categoryId   = (int) $categoryId;
-            $this->parentId     = (int) $parentId;            
+            $this->parentId     = (int) $parentId;   
+            $this->active       = (boolean) $active;         
         }           
         
         /**
@@ -68,7 +76,8 @@
                 empty($json['parentId'])    ? 0 : (int) $json['parentId'],
                 empty($json['order'])       ? 0 : (int) $json['order'],
                 empty($json['createDate'])  ? 0 : (int) $json['createDate'],  
-                empty($json['userId'])      ? 0 : (int) $json['userId']
+                empty($json['userId'])      ? 0 : (int) $json['userId'],
+                empty($json['active'])      ? false : (boolean) $json['active']
             );
                                   
             return $question;
@@ -89,7 +98,8 @@
                 'parentId'      => $this->parentId,                
                 'order'         => $this->order,
                 'createDate'    => $this->createDate,   
-                'userId'        => $this->userId                                                     
+                'userId'        => $this->userId,  
+                'active'        => $this->active                                                   
             );
         }        
     }    
