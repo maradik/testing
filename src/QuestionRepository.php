@@ -116,7 +116,8 @@
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_parentId` (`parentId`),
                           KEY `{$this->tableFullName()}_userId` (`userId`),
-                          KEY `{$this->tableFullName()}_categoryId` (`categoryId`)  
+                          KEY `{$this->tableFullName()}_categoryId` (`categoryId`),
+                          KEY `{$this->tableFullName()}_active` (`id`,`active`), 
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        
                 $ret = $this->db->query($sql) !== false;            
             } catch (\Exception $err) {

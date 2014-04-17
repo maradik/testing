@@ -25,12 +25,9 @@
      * @var \Maradik\Testing\QuestionRepository $qr
      */        
     $qr = new QuestionRepository($pdo, "question", "test");
+    /*
     $qr->install();
     
-    /**
-     * @var \Maradik\Testing\QuestionData $question
-     */ 
-          
     $question = new QuestionData(0, "Вопрос__2", "Описание-уточнение вопроса_", 5, 6, 7, 123, 8);
     echo $qr->insert($question)."\n";
     var_dump($question);    
@@ -43,4 +40,9 @@
     var_dump($question);
     
     //$pdo->query("drop table `test_question`");
+    */
+
+    $qr->setOnDelete();
+    
+    $qr->delete(1);
 ?>

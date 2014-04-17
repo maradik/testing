@@ -24,16 +24,21 @@
         protected $tableName;          
         
         /**
-         * @var array Соответствие полей сущности (ключ) - полям таблицы (значение)
+         * @var array $tableFields Соответствие полей сущности (ключ) - полям таблицы (значение)
          */
          
         private $tableFields;
         
         /**
-         * @var array Соответствие полей таблицы (ключ) - полям сущности (значение)
+         * @var array $entityFields Соответствие полей таблицы (ключ) - полям сущности (значение)
          */
          
-        private $entityFields;        
+        private $entityFields;     
+        
+        /**
+         * @var callable $onDelete
+         */
+        private $onDelete;   
                 
         /**
          * @param \PDO $pdo Объект для взаимодействия с БД
@@ -52,7 +57,24 @@
             
             $this->tableFields = $this->tableFields();
             $this->entityFields = array_flip($this->tableFields);
+            
+            $this->onDelete = function($id) { return true; };
         }     
+        
+        /**
+         * Принимает функцию вида 
+         * 
+         * function($id) {return true;}
+         * 
+         * Эта функция будет вызвана в момент вызова метода delete 
+         * и ей будет передан параметром идентификатор удаляемой сущности $id
+         * 
+         * @param callable $callback function($id) {return true;}
+         */
+        public function setOnDelete($callback)
+        {
+            $this->onDelete = $callback;
+        }
         
         /**
          * @return \PDO
@@ -242,6 +264,8 @@
         public function delete($id) 
         {
             $ret = false;            
+
+            $this->transactionBegin();
             
             try {
                 $q = $this->db->prepare(
@@ -250,8 +274,16 @@
                 $ret = $q->execute(array($id));
                 $q->closeCursor();
             } catch (\Exception $err) {
+                $this->transactionRollBack();                
                 throw new \Exception(ERROR_TEXT_DB, 0, $err);              
             }
+            $ret = $ret && (!isset($this->onDelete) ? true : call_user_func($this->onDelete, $id));
+            
+            if ($ret) {
+                $this->transactionCommit();
+            } else {
+                $this->transactionRollBack();
+            }            
             
             return $ret;            
         }
