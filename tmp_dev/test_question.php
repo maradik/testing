@@ -41,8 +41,10 @@
     
     //$pdo->query("drop table `test_question`");
     */
-
-    $qr->setOnDelete();
+    $perem = 111;
+    $qr->setOnDelete(function() use ($perem){
+        print $perem;
+    });
     
     $qr->delete(1);
 ?>

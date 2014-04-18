@@ -265,7 +265,8 @@
         {
             $ret = false;            
 
-            $this->transactionBegin();
+            //TODO разобраться с транзакциями. Если delete() вызывает delete() у другого репозитори (но с этим же PDO) - ошибка повторного открытия транзакции
+            //$this->transactionBegin();
             
             try {
                 $q = $this->db->prepare(
@@ -274,17 +275,17 @@
                 $ret = $q->execute(array($id));
                 $q->closeCursor();
             } catch (\Exception $err) {
-                $this->transactionRollBack();                
+                //$this->transactionRollBack();                
                 throw new \Exception(ERROR_TEXT_DB, 0, $err);              
             }
             $ret = $ret && (!isset($this->onDelete) ? true : call_user_func($this->onDelete, $id));
-            
+            /*
             if ($ret) {
                 $this->transactionCommit();
             } else {
                 $this->transactionRollBack();
             }            
-            
+            */
             return $ret;            
         }
         
