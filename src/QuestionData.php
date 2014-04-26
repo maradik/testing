@@ -83,7 +83,7 @@
             }            
             
             if (in_array($f = 'categoryId', $fields)) {
-                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                $v[$f] = Validator::attribute($f, Validator::int()->min(0, true))
                     ->setName($f)
                     ->setTemplate('Некорректное значение в поле Категория.');
             }
