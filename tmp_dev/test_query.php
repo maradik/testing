@@ -1,24 +1,7 @@
 <?php
-    /*
-    define('CLASS_DIR', '../src/');
-    set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR);
-    spl_autoload_extensions('.php');
-    spl_autoload_register();
-    */
-    function autoload($class_name) {
-        $class_name = str_replace('Maradik\\Testing\\', '', $class_name);        
-        require_once __DIR__.'/../src/' . $class_name . '.php';
-    }
-
-    spl_autoload_register('autoload');
-   
-
-    use Maradik\Testing\Query;
-    use Maradik\Testing\CategoryRepository;
-    use Maradik\Testing\QuestionRepository;
-    use Maradik\Testing\AnswerRepository;
-    use Maradik\Testing\DataFilter;
-    use Maradik\Testing\DataLink;
+    namespace Maradik\Testing;
+    
+    require_once '../vendor/autoload.php';
     
     $db = new PDO(
         "mysql:host=localhost;dbname=hinter;charset=UTF8", 

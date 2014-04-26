@@ -1,6 +1,8 @@
 <?php
     namespace Maradik\Testing; 
     
+    use Respect\Validation\Validator;    
+    
     /**
      * Вопрос
      */
@@ -59,6 +61,47 @@
         {
             return empty($this->parentId);
         }          
+        
+        /**
+         * @param string[] $fields Названия полей для проверки.
+         * @return \Respect\Validation\Validatable[] Возвращает массив валидаторов.
+         */
+        protected function validators($fields) 
+        {
+            $v = parent::validators($fields);
+            
+            if (in_array($f = 'title', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(10, 150))
+                    ->setName($f)
+                    ->setTemplate('Вопрос должен быть длиной от 10 до 150 символов.');
+            }
+
+            if (in_array($f = 'description', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 1000))
+                    ->setName($f)
+                    ->setTemplate('Описание должно быть не более 1000 символов.');
+            }            
+            
+            if (in_array($f = 'categoryId', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Категория.');
+            }
+            
+            if (in_array($f = 'parentId', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->min(0, true))
+                    ->setName($f)
+                    ->setTemplate('Некорректная ссылка.');
+            }       
+            
+            if (in_array($f = 'active', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::bool())
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Видимый.');
+            }                    
+
+            return $v;
+        }           
         
         /**
          * Возвращает экземпляр класса QuestionData, проинициализированный данными $json

@@ -1,6 +1,8 @@
 <?php
     namespace Maradik\Testing;
     
+    use Respect\Validation\Validator;    
+    
     /**
      * Класс-контейнер для хранения вопроса или ответа
      */
@@ -47,6 +49,47 @@
             $this->createDate   = (int) $createDate;
             $this->userId       = (int) $userId;
         }                  
+        
+        /**
+         * @param string[] $fields Названия полей для проверки.
+         * @return \Respect\Validation\Validatable[] Возвращает массив валидаторов.
+         */
+        protected function validators($fields) 
+        {
+            $v = parent::validators($fields);
+            
+            if (in_array($f = 'title', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(1, 150))
+                    ->setName($f)
+                    ->setTemplate('Заголовок должен быть длиной от 1 до 150 символов.');
+            }
+
+            if (in_array($f = 'description', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 1000))
+                    ->setName($f)
+                    ->setTemplate('Описание должно быть не более 1000 символов.');
+            }    
+            
+            if (in_array($f = 'order', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int())
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Порядок сортировки.');
+            }            
+            
+            if (in_array($f = 'createDate', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Дата создания.');
+            }     
+            
+            if (in_array($f = 'userId', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Автор.');
+            }                             
+            
+            return $v;
+        }          
         
         /**
          * Возвращает экземпляр класса QuestionAnswerData, проинициализированный данными $json

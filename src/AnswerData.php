@@ -1,6 +1,8 @@
 <?php
     namespace Maradik\Testing; 
     
+    use Respect\Validation\Validator;    
+    
     /**
      * Ответ на вопрос
      */
@@ -31,6 +33,35 @@
 
             $this->questionId = (int) $questionId;
         }    
+        
+        /**
+         * @param string[] $fields Названия полей для проверки.
+         * @return \Respect\Validation\Validatable[] Возвращает массив валидаторов.
+         */
+        protected function validators($fields) 
+        {
+            $v = parent::validators($fields);
+            
+            if (in_array($f = 'title', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(1, 50))
+                    ->setName($f)
+                    ->setTemplate('Ответ должен быть длиной от 1 до 50 символов.');
+            }
+
+            if (in_array($f = 'description', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 500))
+                    ->setName($f)
+                    ->setTemplate('Описание должно быть не более 500 символов.');
+            }            
+            
+            if (in_array($f = 'questionId', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Ссылка на вопрос.');
+            }
+
+            return $v;
+        }         
         
         /**
          * Возвращает экземпляр класса AnswerData, проинициализированный данными $json

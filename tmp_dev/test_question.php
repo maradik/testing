@@ -1,13 +1,7 @@
 <?php
-    require_once __DIR__.'/../src/BaseData.php';
-    require_once __DIR__.'/../src/QuestionAnswerData.php';
-    require_once __DIR__.'/../src/AnswerData.php';    
-    require_once __DIR__.'/../src/BaseRepository.php';
-    require_once __DIR__.'/../src/QuestionData.php';
-    require_once __DIR__.'/../src/QuestionRepository.php';
+    namespace Maradik\Testing;
     
-    use \Maradik\Testing\QuestionRepository;
-    use \Maradik\Testing\QuestionData;
+    require_once '../vendor/autoload.php';
     
     $pdo = new PDO("mysql:host=localhost;dbname=voprosnik;charset=UTF8", "root", "");
     /*
