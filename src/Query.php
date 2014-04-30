@@ -463,11 +463,12 @@
         /**
          * Получить строку сущностей из БД
          * 
+         * @param $row_offset Смещение выбираемой позиции 
          * @return BaseData[] Набор сущностей (столбцы одной строки БД)
          */                
-        public function getOne() 
+        public function getOne($row_offset = 0) 
         {                                    
-            return current($this->get(1, 0));     
+            return current($this->get(1, $row_offset));     
         }   
         
         /**
@@ -480,5 +481,16 @@
         public function getEntity($row_count = 100, $row_offset = 0)
         {
             return array_map('array_pop', $this->get($row_count, $row_offset));
-        }                 
+        }    
+        
+        /**
+         * Получить сущность из БД
+         * 
+         * @param $row_offset Смещение выбираемой позиции 
+         * @return BaseData[] Набор сущностей (столбцы одной строки БД)
+         */                
+        public function getOneEntity($row_offset = 0) 
+        {                                    
+            return current($this->getEntity(1, $row_offset));     
+        }                      
     }
