@@ -487,7 +487,7 @@
          * Получить сущность из БД
          * 
          * @param $row_offset Смещение выбираемой позиции 
-         * @return BaseData[] Набор сущностей (столбцы одной строки БД)
+         * @return BaseData Одна сущность
          */                
         public function getOneEntity($row_offset = 0) 
         {                                    

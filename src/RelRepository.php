@@ -18,7 +18,7 @@
          */
         public function getByParentId($parentId)
         {
-            return parent::getById($id);                        
+            return $this->query()->addFilterField('parentId', $parentId)->getOneEntity();                        
         }  
 
         /**
