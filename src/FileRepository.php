@@ -45,6 +45,7 @@
                 $row['parentType'],
                 $row['parentId'],   
                 $row['createDate'],
+                $row['userId'],
                 $row['type']                             
             );
             
@@ -68,6 +69,7 @@
                 'parentType'    => 'parentType',
                 'parentId'      => 'parentId',
                 'createDate'    => 'createDate',
+                'userId'        => 'userId',
                 'type'          => 'type'
             );            
         }            
@@ -90,10 +92,12 @@
                           `parentId` int(10) unsigned NOT NULL,
                           `title` varchar(255) NOT NULL,
                           `description` varchar(1000) NOT NULL,
-                          `createDate` int(10) unsigned NOT NULL,                          
+                          `createDate` int(10) unsigned NOT NULL, 
+                          `userId` int(10) unsigned NOT NULL,                         
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_parent` (`parentType`, `parentId`, `order`),
                           KEY `{$this->tableFullName()}_fileName` (`fileName`), 
+                          KEY `{$this->tableFullName()}_userId` (`userId`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        
                 $ret = $this->db->query($sql) !== false;            
             } catch (\Exception $err) {

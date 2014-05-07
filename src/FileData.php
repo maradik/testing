@@ -54,7 +54,12 @@
         /**
          * @var int $createDate Timestamp
          */
-        public $createDate;         
+        public $createDate;        
+        
+        /**
+         * @var int $userId
+         */
+        public $userId;         
         
         /**
          * @param int $id
@@ -66,6 +71,7 @@
          * @param int $parentType
          * @param int $parentId
          * @param int $createDate
+         * @param int $userId
          * @param int $type
          */
         public function __construct(
@@ -78,6 +84,7 @@
             $parentType     = 0,
             $parentId       = 0,
             $createDate     = 0,
+            $userId         = 0,            
             $type           = self::TYPE_OTHER
         ) {
             parent::__construct($id);
@@ -90,6 +97,7 @@
             $this->parentType   = (int) $parentType;
             $this->parentId     = (int) $parentId;
             $this->createDate   = (int) $createDate;
+            $this->userId       = (int) $userId;
             $this->type         = (int) $type;
         }
         
@@ -162,6 +170,12 @@
                     ->setName($f)
                     ->setTemplate('Некорректный тип файла.');
             } 
+
+            if (in_array($f = 'userId', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Автор.');
+            }   
 
             return $v;
         }          
