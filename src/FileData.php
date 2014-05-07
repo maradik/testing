@@ -57,14 +57,20 @@
         public $createDate;        
         
         /**
-         * @var int $userId
+         * @var int $userId Владелец/Автор
          */
-        public $userId;         
+        public $userId;    
+        
+        /**
+         * @var int $size Размер в КБ
+         */
+        public $size;               
         
         /**
          * @param int $id
          * @param string $fileName
          * @param string $origFileName
+         * @param int $size
          * @param string $title
          * @param string $description
          * @param int $order
@@ -78,6 +84,7 @@
             $id             = 0,
             $fileName       = "",
             $origFileName   = "",
+            $size           = 0,
             $title          = "",
             $description    = "",
             $order          = 0,
@@ -93,6 +100,7 @@
             $this->origFileName = $origFileName;
             $this->title        = $title;
             $this->description  = $description;
+            $this->size         = (int) $size;
             $this->order        = (int) $order;
             $this->parentType   = (int) $parentType;
             $this->parentId     = (int) $parentId;
@@ -127,7 +135,13 @@
                     )
                     ->setName($f)
                     ->setTemplate('Оригинальное имя файла должно быть до 255 символов, без разделителей каталогов.');
-            }                       
+            }                   
+            
+            if (in_array($f = 'size', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректный размер файла.');
+            }                
             
             if (in_array($f = 'title', $fields)) {
                 $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(1, 100))
