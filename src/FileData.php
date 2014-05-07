@@ -27,29 +27,34 @@
         public $type;          
         
         /**
-         * @var string $title
+         * @var string $title Заголовок
          */
         public $title;
         
         /**
-         * @var string $description
+         * @var string $description Описание
          */
         public $description;
         
         /**
-         * @var int $parentType
+         * @var int $parentType Тип объекта, к которому привязан файл
          */
         public $parentType;            
         
         /**
-         * @var int $parentId
+         * @var int $parentId Id объекта, к которому привязан файл
          */
         public $parentId;
         
         /**
-         * @var int $order
+         * @var int $order Порядок сортировки
          */
         public $order;
+        
+        /**
+         * @var int $createDate Timestamp
+         */
+        public $createDate;         
         
         /**
          * @param int $id
@@ -60,6 +65,7 @@
          * @param int $order
          * @param int $parentType
          * @param int $parentId
+         * @param int $createDate
          * @param int $type
          */
         public function __construct(
@@ -71,6 +77,7 @@
             $order          = 0,
             $parentType     = 0,
             $parentId       = 0,
+            $createDate     = 0,
             $type           = self::TYPE_OTHER
         ) {
             parent::__construct($id);
@@ -82,6 +89,7 @@
             $this->order        = (int) $order;
             $this->parentType   = (int) $parentType;
             $this->parentId     = (int) $parentId;
+            $this->createDate   = (int) $createDate;
             $this->type         = (int) $type;
         }
         
@@ -142,6 +150,12 @@
                     ->setName($f)
                     ->setTemplate('Некорректная ссылка.');
             }       
+
+            if (in_array($f = 'createDate', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::int()->notEmpty()->min(0))
+                    ->setName($f)
+                    ->setTemplate('Некорректное значение в поле Дата создания.');
+            }
 
             if (in_array($f = 'type', $fields)) {
                 $v[$f] = Validator::attribute($f, Validator::int()->in(array(self::TYPE_OTHER, self::TYPE_IMAGE)))

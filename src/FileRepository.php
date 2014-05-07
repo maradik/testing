@@ -44,6 +44,7 @@
                 $row['order'],
                 $row['parentType'],
                 $row['parentId'],   
+                $row['createDate'],
                 $row['type']                             
             );
             
@@ -66,6 +67,7 @@
                 'order'         => 'order',
                 'parentType'    => 'parentType',
                 'parentId'      => 'parentId',
+                'createDate'    => 'createDate',
                 'type'          => 'type'
             );            
         }            
@@ -88,6 +90,7 @@
                           `parentId` int(10) unsigned NOT NULL,
                           `title` varchar(255) NOT NULL,
                           `description` varchar(1000) NOT NULL,
+                          `createDate` int(10) unsigned NOT NULL,                          
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_parent` (`parentType`, `parentId`, `order`),
                           KEY `{$this->tableFullName()}_fileName` (`fileName`), 
