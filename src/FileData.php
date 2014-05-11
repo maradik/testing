@@ -121,7 +121,7 @@
                 $v[$f] = Validator::attribute(
                     $f, 
                     Validator::string()->notEmpty()->length(1, 255)
-                        ->not(Validator::contains('/'))->not(Validator::contains('\\'))
+                        ->not(Validator::oneOf(Validator::contains('\/'), Validator::contains('\\')))
                     )
                     ->setName($f)
                     ->setTemplate('Имя файла должно быть длиной до 255 символов, без разделителей каталогов.');
@@ -131,7 +131,7 @@
                 $v[$f] = Validator::attribute(
                     $f, 
                     Validator::string()->notEmpty()->length(1, 255)
-                        ->not(Validator::contains('/'))->not(Validator::contains('\\'))
+                        ->not(Validator::oneOf(Validator::contains('\/'), Validator::contains('\\')))
                     )
                     ->setName($f)
                     ->setTemplate('Оригинальное имя файла должно быть до 255 символов, без разделителей каталогов.');
