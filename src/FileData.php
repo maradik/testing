@@ -64,7 +64,12 @@
         /**
          * @var int $size Размер в КБ
          */
-        public $size;               
+        public $size;             
+        
+        /**
+         * @var int[] $allowedParentTypes Допустимые значения для поля parentType
+         */          
+        protected $allowedParentTypes = array();
         
         /**
          * @param int $id
@@ -107,6 +112,14 @@
             $this->createDate   = (int) $createDate;
             $this->userId       = (int) $userId;
             $this->type         = (int) $type;
+        }
+        
+        /**
+         * @param int[] Допустимые значения для поля parentType. Проверка осуществляется при вызове validate()
+         */
+        public function setAllowedParentTypes(array $allowedParentTypes)
+        {
+            $this->allowedParentTypes = $allowedParentTypes;   
         }
         
         /**
@@ -162,9 +175,13 @@
             }
             
             if (in_array($f = 'parentType', $fields)) {
-                $v[$f] = Validator::attribute($f, Validator::int()->min(0, true))
+                $val = Validator::int();
+                $val = empty($this->allowedParentTypes) ? $val->min(0, true) : $val->in($this->allowedParentTypes);    
+
+                $v[$f] = Validator::attribute($f, $val)
                     ->setName($f)
                     ->setTemplate('Некорректный тип ссылки.');
+                unset($val);
             }            
             
             if (in_array($f = 'parentId', $fields)) {
