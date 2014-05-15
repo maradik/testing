@@ -157,9 +157,9 @@
             }                
             
             if (in_array($f = 'title', $fields)) {
-                $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(1, 100))
+                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 100))
                     ->setName($f)
-                    ->setTemplate('Заголовок должен быть длиной от 1 до 100 символов.');
+                    ->setTemplate('Заголовок должен быть длиной до 100 символов.');
             }
 
             if (in_array($f = 'description', $fields)) {
