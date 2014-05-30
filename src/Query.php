@@ -268,11 +268,11 @@
             if ($joinQuery = $this->getJoinQuery()) {
                 foreach ($this->getLinks() as $link) {
                     $ret .= ($ret ? ' AND ' : '')
-                        . "{$joinQuery->getAlias()}."
-                        . "{$joinQuery->getRepository()->getTableField($link->getParentField())} "
+                        . "`{$joinQuery->getAlias()}`."
+                        . "`{$joinQuery->getRepository()->getTableField($link->getParentField())}` "
                         . "{$link->getRelationType()} "
-                        . "{$this->getAlias()}."
-                        . "{$this->getRepository()->getTableField($link->getChildField())}";
+                        . "`{$this->getAlias()}`."
+                        . "`{$this->getRepository()->getTableField($link->getChildField())}`";
                 }
             }   
             
@@ -291,7 +291,7 @@
                 $tableField = $this->getRepository()->getTableField($filter->getField());
                 $paramName = "{$this->getAlias()}_{$tableField}{$key}";
                 $sql .= ($sql ? ' AND ' : '') 
-                    . "{$this->getAlias()}.{$tableField} {$filter->getRelationType()} :{$paramName}";
+                    . "`{$this->getAlias()}`.`{$tableField}` {$filter->getRelationType()} :{$paramName}";
                 $params[$paramName] = $filter->getValue();
             }
             
@@ -307,7 +307,7 @@
 
             foreach ($this->getSort() as $field => $sortOrder) {
                 $sql .= ($sql ? ', ' : '')
-                    . "{$this->getAlias()}.{$this->getRepository()->getTableField($field)} {$sortOrder}";
+                    . "`{$this->getAlias()}`.`{$this->getRepository()->getTableField($field)}` {$sortOrder}";
             }
             
             return $sql;
@@ -316,25 +316,31 @@
         /**
          * Формирует строку Sql-запроса (с учетом присоединенных источников данных) и массив параметров. 
          *
+         * @param int $row_count Количество строк для выборки. Игнорируется, если $selectionRowsCount == true                 
+         * @param int $row_offset Смещение первой выбираемой позиции. Игнорируется, если $selectionRowsCount == true
+         * @param boolean $selectionRowsCount Запрос для получения количества строк
          * @return array Строка Sql-запроса с параметрами
          */
-        public function buildSql()
+        public function buildSql($row_count = 100, $row_offset = 0, $selectionRowsCount = false)
         {
+            $row_count          = (int) $row_count;
+            $row_offset         = (int) $row_offset;
+            $selectionRowsCount = (boolean) $selectionRowsCount;
             $sql = '';
             $whereSql = '';
             $whereParams = array();
-            $selectionList = array();             
+            $selectionList = $selectionRowsCount ? array('count(*) AS `count`') : array();             
             $sortSql = '';
             
             $query = $this;
             do {
                 //ВНИМАНИЕ! Если будет проблема гибкости со списком полей, используй дополнительный запрос
                 //SHOW FULL FIELDS FROM table_name --для получения списка полей таблицы
-                if (!$query->getHidden()) {
+                if (!$query->getHidden() && !$selectionRowsCount) {
                     $tableFields = array_values($query->getRepository()->getTableFields());    
                     array_walk($tableFields, function(&$field) use ($query) {
-                        $field = "{$query->getAlias()}.{$field}";
-                        $field .= " AS '{$field}'";
+                        $fieldAlias = "{$query->getAlias()}.{$field}";
+                        $field = "`{$query->getAlias()}`.`{$field}` AS `{$fieldAlias}`";
                     });
                     $selectionList = array_merge($tableFields, $selectionList);
                     unset($tableFields);
@@ -343,13 +349,13 @@
                 if ($query->getJoinQuery()) {
                     $relation = $query->buildSqlRelation();
                     $sql = $query->getJoinModeStr()
-                        . " JOIN {$query->getRepository()->tableFullName()} {$query->getAlias()} "
+                        . " JOIN `{$query->getRepository()->tableFullName()}` `{$query->getAlias()}` "
                         . ($relation ? "ON {$relation}" : "")
                         . ($sql ? " {$sql}" : "");                        
                     unset($relation);
                 } else {
                     $sql = "SELECT " . (!empty($selectionList) ? implode(', ', $selectionList) : "'x'")
-                        . " FROM {$query->getRepository()->tableFullName()} {$query->getAlias()}"
+                        . " FROM `{$query->getRepository()->tableFullName()}` `{$query->getAlias()}`"
                         . ($sql ? " {$sql}" : "");
                 }
                 list($whereSqlCur, $whereParamsCur) = $query->buildSqlFilter();
@@ -365,6 +371,10 @@
             $sql .= ($whereSql ? " WHERE {$whereSql}" : '');
             $sql .= ($sortSql ? " ORDER BY {$sortSql}" : '');
             
+            if (!$selectionRowsCount) {
+                $sql .= " LIMIT {$row_offset}, {$row_count}"; 
+            }
+
             return array($sql, $whereParams);            
         }        
         
@@ -430,6 +440,31 @@
             return $ret;
         }
         
+         /**
+         * Выполняет sql-запрос. Возвращает результат запроса.
+         * 
+         * @param string $sql SQL-запрос               
+         * @param array $params Параметры           
+         * @return mixed[][] Двумерный ассоциативный массив [номер_строки][имя_столбца]
+         */                
+        protected function execSql($sql, array $params) 
+        {
+            $ret = array();
+                        
+            try {
+                $q = $this->getRepository()->getDb()->prepare($sql);
+                $res = $q->execute($params);
+                if ($res) {                 
+                    $ret = $q->fetchAll(\PDO::FETCH_ASSOC);
+                } 
+                $q->closeCursor();
+            } catch (\Exception $err) {
+                throw new \Exception(ERROR_TEXT_DB, 0, $err);              
+            }                        
+            
+            return $ret;     
+        }    
+        
         /**
          * Получить массив строк сущностей из БД
          * 
@@ -440,22 +475,12 @@
         public function get($row_count = 100, $row_offset = 0) 
         {            
             $ret = array();
-            list($sql, $params) = $this->buildSql();            
+            list($sql, $params) = $this->buildSql($row_count, $row_offset);            
+            $rows = $this->execSql($sql, $params);
             
-            try {
-                $q = $this->getRepository()->getDb()->prepare($sql . " LIMIT {$row_offset}, {$row_count}");
-                $res = $q->execute($params);
-                if ($res) {                 
-                    $rows = $q->fetchAll(\PDO::FETCH_ASSOC);
-                    foreach ($rows as $row) {
-                        $ret[] = $this->rowToObjects($row);
-                    }
-                    unset($rows);
-                } 
-                $q->closeCursor();
-            } catch (\Exception $err) {
-                throw new \Exception(ERROR_TEXT_DB, 0, $err);              
-            }                        
+            foreach ($rows as $row) {
+                $ret[] = $this->rowToObjects($row);
+            }
             
             return $ret;     
         }    
@@ -492,5 +517,17 @@
         public function getOneEntity($row_offset = 0) 
         {                                    
             return current($this->getEntity(1, $row_offset));     
-        }                      
+        }      
+        
+        /**
+         * Получить количество строк результата SQL-запроса
+         * 
+         * @return int Количество строк
+         */
+        public function getCount()
+        {
+            list($sql, $params) = $this->buildSql(0, 0, true);            
+            $rows = $this->execSql($sql, $params);
+            return !empty($rows[0]['count']) ? (int) $rows[0]['count'] : 0;                 
+        }                
     }
