@@ -80,7 +80,7 @@
             if (in_array($f = 'linkUrl', $fields)) {
                 $v[$f] = Validator::attribute(
                     $f, 
-                    v::oneOf(
+                    Validator::oneOf(
                         Validator::string()->length(0), 
                         Validator::string()->length(1, 2000)->startsWith('http://')
                     ))
