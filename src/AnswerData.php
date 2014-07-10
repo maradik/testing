@@ -78,9 +78,14 @@
             }
             
             if (in_array($f = 'linkUrl', $fields)) {
-                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 2000))
+                $v[$f] = Validator::attribute(
+                    $f, 
+                    v::oneOf(
+                        Validator::string()->length(0), 
+                        Validator::string()->length(1, 2000)->startsWith('http://')
+                    ))
                     ->setName($f)
-                    ->setTemplate('Ссылка должна быть не более 2000 символов.');
+                    ->setTemplate('Ссылка должна быть не более 2000 символов и начинаться с \'http://\'.');
             }            
 
             if (in_array($f = 'linkTitle', $fields) && !empty($this->linkUrl)) {
