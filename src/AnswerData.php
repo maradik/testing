@@ -82,7 +82,10 @@
                     $f, 
                     Validator::oneOf(
                         Validator::string()->notEmpty()->not(), 
-                        Validator::string()->length(1, 2000)->startsWith('http://')
+                        Validator::string()->length(1, 2000)->oneOf(
+                            Validator::startsWith('https://'), 
+                            Validator::startsWith('http://')
+                        )
                     ))
                     ->setName($f)
                     ->setTemplate('Ссылка должна быть не более 2000 символов и начинаться с \'http://\'.');
