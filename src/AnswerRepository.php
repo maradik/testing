@@ -42,7 +42,9 @@
                 $row['questionId'],
                 $row['order'],
                 $row['createDate'],
-                $row['userId']                                                
+                $row['userId'],
+                $row['linkUrl'],
+                $row['linkTitle']                                                
             );
             
             return $answerData;
@@ -86,7 +88,9 @@
                 'questionId'  => 'questionId',
                 'order'       => 'order',
                 'createDate'  => 'createDate',
-                'userId'      => 'userId'
+                'userId'      => 'userId',
+                'linkUrl'     => 'linkUrl',
+                'linkTitle'   => 'linkTitle'
             );            
         }        
         
@@ -106,6 +110,8 @@
                           `createDate` int(10) unsigned NOT NULL,
                           `order` int(11) NOT NULL,
                           `userId` int(10) unsigned NOT NULL,
+                          `linkUrl` varchar(2000) NOT NULL,
+                          `linkTitle` varchar(100) NOT NULL,
                           PRIMARY KEY (`id`),
                           KEY `{$this->tableFullName()}_questionId` (`questionId`) 
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";        

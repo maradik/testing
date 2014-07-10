@@ -12,6 +12,16 @@
          * @var int $questionId
          */        
         public $questionId;
+        
+        /**
+         * @var string $linkUrl
+         */
+        public $linkUrl;
+        
+        /**
+         * @var string $linkTitle
+         */        
+        public $linkTitle;
                
         /**
          * @param int $id           
@@ -19,6 +29,9 @@
          * @param string $description         
          * @param int $questionId
          * @param int $createDate
+         * @param int $userId
+         * @param string $linkUrl
+         * @param string $linkTitle
          */
         public function __construct(
             $id             = 0, 
@@ -27,11 +40,15 @@
             $questionId     = 0, 
             $order          = 0,            
             $createDate     = 0,
-            $userId         = 0
+            $userId         = 0,
+            $linkUrl        = '',
+            $linkTitle      = ''
         ) {
             parent::__construct($id, $title, $description, $order, $createDate, $userId);            
 
             $this->questionId = (int) $questionId;
+            $this->linkUrl    = (string) $linkUrl;
+            $this->linkTitle  = (string) $linkTitle;
         }    
         
         /**
@@ -59,6 +76,18 @@
                     ->setName($f)
                     ->setTemplate('Некорректное значение в поле Ссылка на вопрос.');
             }
+            
+            if (in_array($f = 'linkUrl', $fields)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->length(0, 2000))
+                    ->setName($f)
+                    ->setTemplate('Ссылка должна быть не более 2000 символов.');
+            }            
+
+            if (in_array($f = 'linkTitle', $fields) && !empty($this->linkUrl)) {
+                $v[$f] = Validator::attribute($f, Validator::string()->notEmpty()->length(1, 100))
+                    ->setName($f)
+                    ->setTemplate('Заголовок ссылки должен быть от 1 до 100 символов.');
+            } 
 
             return $v;
         }         
@@ -78,9 +107,10 @@
                 empty($json['questionId'])  ? 0 : (int) $json['questionId'],
                 empty($json['order'])       ? 0 : (int) $json['order'],
                 empty($json['createDate'])  ? 0 : (int) $json['createDate'],
-                empty($json['userId'])      ? 0 : (int) $json['userId']
+                empty($json['userId'])      ? 0 : (int) $json['userId'],
+                empty($json['linkUrl'])     ? "" : (string) $json['linkUrl'],
+                empty($json['linkTitle'])   ? "" : (string) $json['linkTitle']
             );                                                             
-                                  
             return $answer;
         }    
         
@@ -98,7 +128,9 @@
                 'questionId'    => $this->questionId,
                 'order'         => $this->order,                
                 'createDate'    => $this->createDate,
-                'userId'        => $this->userId                                                     
+                'userId'        => $this->userId,       
+                'linkUrl'       => $this->linkUrl,
+                'linkTitle'     => $this->linkTitle
             );            
         }
     }
