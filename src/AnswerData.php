@@ -81,7 +81,7 @@
                 $v[$f] = Validator::attribute(
                     $f, 
                     Validator::oneOf(
-                        Validator::string()->length(0), 
+                        Validator::string()->notEmpty()->not(), 
                         Validator::string()->length(1, 2000)->startsWith('http://')
                     ))
                     ->setName($f)
