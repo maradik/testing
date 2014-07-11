@@ -82,13 +82,16 @@
                     $f, 
                     Validator::oneOf(
                         Validator::string()->notEmpty()->not(), 
-                        Validator::string()->length(1, 2000)->oneOf(
-                            Validator::startsWith('https://'), 
-                            Validator::startsWith('http://')
+                        Validator::allOf(
+                            Validator::string()->length(1, 2000)->oneOf(
+                                Validator::startsWith('https://'), 
+                                Validator::startsWith('http://')
+                            ),                        
+                            Validator::callback(function($val){return (boolean)filter_var($val, FILTER_VALIDATE_URL);})
                         )
                     ))
                     ->setName($f)
-                    ->setTemplate('Ссылка должна быть не более 2000 символов и начинаться с \'http://\'.');
+                    ->setTemplate('Укажите корректный URL ссылки, начинающийся с \'http://\'.');
             }            
 
             if (in_array($f = 'linkTitle', $fields) && !empty($this->linkUrl)) {
