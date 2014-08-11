@@ -18,6 +18,7 @@
                 case '<':
                 case '>=':
                 case '<=':
+                case '<>':                    
                     $this->relationType = $relationType;                     
                     break;                                    
                 default:
