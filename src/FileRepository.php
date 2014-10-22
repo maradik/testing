@@ -31,6 +31,31 @@
         }                     
     
         /**
+         * Удалить сущность из БД
+         * 
+         * @param int $id Идентификатор удаляемой сущности
+         * @return boolean
+         */                
+        public function delete($id) 
+        {
+            $ret = false;    
+            $fileEntity = $this->getById($id);        
+
+            try {
+                $q = $this->db->prepare(
+                    "delete from `{$this->tableFullName()}` where `id` = ?"
+                );
+                $ret = $q->execute(array($id));
+                $q->closeCursor();
+            } catch (\Exception $err) {
+                throw new \Exception(ERROR_TEXT_DB, 0, $err);              
+            }
+            $ret = $ret && (!isset($this->onDelete) ? true : call_user_func($this->onDelete, $id, $fileEntity));
+
+            return $ret;            
+        }    
+    
+        /**
          * @return FileData
          */
         public function rowToObject(array $row)
