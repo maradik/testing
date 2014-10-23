@@ -38,7 +38,7 @@
         /**
          * @var callable $onDelete
          */
-        private $onDelete;   
+        protected $onDelete;   
                 
         /**
          * @param \PDO $pdo Объект для взаимодействия с БД
